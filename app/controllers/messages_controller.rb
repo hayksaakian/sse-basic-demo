@@ -1,5 +1,21 @@
 class MessagesController < ApplicationController
+  include ActionController::Live
   before_action :set_message, only: [:show, :edit, :update, :destroy]
+
+  def stream
+    Rails.logger.debug("started stream")
+    response.headers['Content-Type'] = 'text/event-stream'
+    3.times do |i|
+      Rails.logger.debug("streaming")
+      response.stream.write "#{i}hello world\n"
+      sleep 1
+    end
+  ensure
+    Rails.logger.debug("done")
+    response.stream.write("Done")
+    response.stream.close
+  end
+
 
   # GET /messages
   # GET /messages.json
