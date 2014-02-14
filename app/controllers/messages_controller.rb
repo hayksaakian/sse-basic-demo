@@ -5,7 +5,7 @@ class MessagesController < ApplicationController
   def stream
     Rails.logger.debug("started stream")
     response.headers['Content-Type'] = 'text/event-stream'
-    3.times do |i|
+    10.times do |i|
       Rails.logger.debug("streaming")
       response.stream.write "#{i}hello world\n"
       sleep 1
