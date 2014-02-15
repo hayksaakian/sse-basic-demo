@@ -2,26 +2,26 @@
 
 Clone the repo, then
 
-		bundle
+    bundle
 
 set up the postgres database like you normally would (see database.yml)
 
-		createuser ...
+    createuser ...
 
 migrate the database
 
-		rake db:migrate
+    rake db:migrate
 
 make a lot of messages
 
-		$ rails console
-		Message.count.upto(100) do |i|
-		  Message.new({content: "test #{i.to_s}"})
-		end
+    $ rails console
+    Message.count.upto(100) do |i|
+      Message.new({content: "test #{i.to_s}"})
+    end
 
 run the server
 
-		rails s puma
+    rails s puma
 
 Test like this: (30 is how many requests you would make without streaming)
 
