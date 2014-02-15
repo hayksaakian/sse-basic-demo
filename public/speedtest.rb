@@ -1,10 +1,18 @@
 #!/usr/bin/ruby 
 require 'net/http'
-times = 25
-NORMAL = "http://127.0.0.1:3000/m"
-STREAMING = "http://127.0.0.1:3000/s?times="+times.to_s
+times = 1
 
-puts ARGV[0]
+stimes = ARGV[0]
+if(!stimes.nil?)
+	times = stimes.to_i
+end
+
+local_base = "http://127.0.0.1:3000"
+remote_base = "http://sse-basic-demo.herokuapp.com"
+
+NORMAL = remote_base+"/m"
+STREAMING = remote_base+"/s?times="+times.to_s
+
 
 def time(raw_url, num=1)
 	def get(raw_url)

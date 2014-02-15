@@ -4,48 +4,41 @@ class MessagesController < ApplicationController
 
   REPEAT = 1
 
-  def stream
-    @messages = Message.all
-    Rails.logger.debug("started stream")
-    response.headers['Content-Type'] = 'text/event-stream'
-    repeat = REPEAT
-    if params[:times].present?
-      repeat = params[:times].to_i
-    end
-    repeat.times {
-      @messages.each do |message|
-        response.stream.write message.as_json.to_s
-      end
-    }
-    # 10.times do |i|
-    #   Rails.logger.debug("streaming")
-    #   response.stream.write "#{i}hello world\n"
-    #   sleep 1
-    # end
-  ensure
-    Rails.logger.debug("done")
-    response.stream.write("Done\n")
-    response.stream.close
-  end
-
-
   # GET /messages
   # GET /messages.json
   def index
     @messages = Message.all
     retval = ""
     repeat = REPEAT
+    streaming = false
     if params[:times].present?
       repeat = params[:times].to_i
     end
+    if params[:stream].present?
+      streaming = params[:stream] == "true"
+    end
+    if streaming
+      response.headers['Content-Type'] = 'text/event-stream'
+    end
     repeat.times {
       @messages.each do |message|
-        retval << message.as_json.to_s
-        retval << "\n"
+        ms = message.as_json.to_s
+        if streaming
+          response.stream.write ms+"\n"
+        else
+          retval << ms
+          retval << "\n"
+        end
       end
     }
-    retval << "Done\n"
-    render :text => retval, :content_type => Mime::TEXT
+  ensure
+    if streaming
+      response.stream.write "\nDone Streaming\n"
+      response.stream.close
+    else
+      retval << "\nDone Normally\n"
+      render :text => retval, :content_type => Mime::TEXT
+    end
   end
 
   # GET /messages/1
