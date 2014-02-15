@@ -1,5 +1,46 @@
 == README
 
+Clone the repo, then
+
+		bundle
+
+set up the postgres database like you normally would (see database.yml)
+
+		createuser ...
+
+migrate the database
+
+		rake db:migrate
+
+make a lot of messages
+
+		$ rails console
+		Message.count.upto(100) do |i|
+		  Message.new({content: "test #{i.to_s}"})
+		end
+
+run the server
+
+		rails s puma
+
+Test like this: (30 is how many requests you would make without streaming)
+
+    ruby public/speedtest.rb 30
+
+you can deploy your own and test if you want
+
+My findings:
+
+Streaming is faster on slow connections where you'd need to make multiple round trips otherwise
+
+On fast connections, it's only faster when there are large individual responses
+
+This also gets around the issue of timing out after 30 seconds on heroku
+
+NOTE: this uses the puma webserver
+
+-----
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
