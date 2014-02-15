@@ -2,17 +2,29 @@ class MessagesController < ApplicationController
   include ActionController::Live
   before_action :set_message, only: [:show, :edit, :update, :destroy]
 
+  REPEAT = 1
+
   def stream
+    @messages = Message.all
     Rails.logger.debug("started stream")
     response.headers['Content-Type'] = 'text/event-stream'
-    10.times do |i|
-      Rails.logger.debug("streaming")
-      response.stream.write "#{i}hello world\n"
-      sleep 1
+    repeat = REPEAT
+    if params[:times].present?
+      repeat = params[:times].to_i
     end
+    repeat.times {
+      @messages.each do |message|
+        response.stream.write message.as_json.to_s
+      end
+    }
+    # 10.times do |i|
+    #   Rails.logger.debug("streaming")
+    #   response.stream.write "#{i}hello world\n"
+    #   sleep 1
+    # end
   ensure
     Rails.logger.debug("done")
-    response.stream.write("Done")
+    response.stream.write("Done\n")
     response.stream.close
   end
 
@@ -21,6 +33,19 @@ class MessagesController < ApplicationController
   # GET /messages.json
   def index
     @messages = Message.all
+    retval = ""
+    repeat = REPEAT
+    if params[:times].present?
+      repeat = params[:times].to_i
+    end
+    repeat.times {
+      @messages.each do |message|
+        retval << message.as_json.to_s
+        retval << "\n"
+      end
+    }
+    retval << "Done\n"
+    render :text => retval, :content_type => Mime::TEXT
   end
 
   # GET /messages/1
