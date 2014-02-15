@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gem 'rails', '4.0.2'
 
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3', group: :develpment
+# gem 'sqlite3', group: :develpment
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -47,4 +47,4 @@ gem 'puma'
 
 # for heroku:
 gem 'rails_12factor', group: :production
-gem 'pg', group: :production
+gem 'pg'#, group: :production
