@@ -2,9 +2,9 @@ Sse::Application.routes.draw do
   resources :messages do
     # collection { get :stream }
   end
-  get '/s' => 'messages#index'
-  get '/stream' => 'messages#index'
-  get '/m' => 'messages#index'
+  get '/s' => 'messages#check'
+  get '/stream' => 'messages#check'
+  get '/m' => 'messages#check'
 
   root 'messages#index'
 

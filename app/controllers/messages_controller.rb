@@ -8,6 +8,10 @@ class MessagesController < ApplicationController
   # GET /messages.json
   def index
     @messages = Message.all
+  end
+
+  def check
+    @messages = Message.all
     retval = ""
     repeat = REPEAT
     streaming = false

@@ -15,17 +15,35 @@ STREAMING = remote_base+"/s?times="+times.to_s
 
 
 def time(raw_url, num=1)
-	def get(raw_url)
-		t0 = Time.now
-		url = URI.parse(raw_url)
-		req = Net::HTTP::Get.new(url)
-		res = Net::HTTP.start(url.host, url.port) {|http|
-		  http.request(req)
-		}
-		t = Time.now
-		return t-t0
+	a = []
+	if raw_url == NORMAL
+		def get(raw_url)
+			t0 = Time.now
+			url = URI.parse(raw_url)
+			req = Net::HTTP::Get.new(url)
+			res = Net::HTTP.start(url.host, url.port) {|http|
+			  http.request(req)
+			}
+			t = Time.now
+			return t-t0
+		end
+		a=num.times.map{|m| get(raw_url) }
 	end
-	a=num.times.map{|m| get(raw_url) }
+	if raw_url == STREAMING
+		t0 = Time.now
+		uri = URI(raw_url)
+		Net::HTTP.start(uri.host, uri.port) do |http|
+		  request = Net::HTTP::Get.new uri
+		  http.request request do |response|
+	      response.read_body do |chunk|
+	        # chunk
+	        t = Time.now
+	        a << (t-t0)
+	        t0 = t
+	      end
+		  end
+		end
+	end
 	a.reduce(:+)
 end
 
