@@ -29,6 +29,18 @@ Test like this: (30 is how many requests you would make without streaming)
 
 you can deploy your own and test if you want
 
+From the browser, use the query params 
+
+- stream=true to use streaming instead of normal HTTP
+- times=X where X is how many times to send the response
+    - for normal responses, it simulates a larger single response
+    - for streaming, it represents a longer stream
+
+
+like this:
+
+    http://sse-basic-demo.herokuapp.com/stream?stream=true&times=10000
+
 My findings:
 
 Streaming is faster on slow connections where you'd need to make multiple round trips otherwise
