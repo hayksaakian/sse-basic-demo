@@ -1,5 +1,7 @@
 == README
 
+Conclusions: On an average connection, SSE beats normal HTTP for delivering large JSON arrays. (In development, the opposite may seem true)
+
 Clone the repo, then
 
     bundle

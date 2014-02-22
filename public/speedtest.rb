@@ -10,7 +10,7 @@ end
 local_base = "http://127.0.0.1:3000"
 remote_base = "http://sse-basic-demo.herokuapp.com"
 
-base = local_base
+base = remote_base
 
 NORMAL = base+"/check"
 STREAMING = base+"/check?stream=true&times="+times.to_s
