@@ -10,8 +10,10 @@ end
 local_base = "http://127.0.0.1:3000"
 remote_base = "http://sse-basic-demo.herokuapp.com"
 
-NORMAL = remote_base+"/m"
-STREAMING = remote_base+"/s?times="+times.to_s
+base = local_base
+
+NORMAL = base+"/check"
+STREAMING = base+"/check?stream=true&times="+times.to_s
 
 
 def time(raw_url, num=1)

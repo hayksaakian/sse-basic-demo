@@ -33,13 +33,13 @@ From the browser, use the query params
 
 - stream=true to use streaming instead of normal HTTP
 - times=X where X is how many times to send the response
-    - for normal responses, it simulates a larger single response
-    - for streaming, it represents a longer stream
+   - for normal responses, it simulates a larger single response
+   - for streaming, it represents a longer stream
 
 
 like this:
 
-    http://sse-basic-demo.herokuapp.com/stream?stream=true&times=10000
+    http://sse-basic-demo.herokuapp.com/check?stream=true&times=10000
 
 My findings:
 

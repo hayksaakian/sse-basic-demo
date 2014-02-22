@@ -8,40 +8,39 @@ class MessagesController < ApplicationController
   # GET /messages.json
   def index
     @messages = Message.all
+    @streaming = params[:stream] == "true" ? true : false
+    @with_js = params[:with_js] == "true" ? true : false
+
+    respond_to do |format|
+      format.html {}
+      format.json { render action: 'check' }
+    end
   end
 
   def check
     @messages = Message.all
     retval = ""
-    repeat = REPEAT
-    streaming = false
-    if params[:times].present?
-      repeat = params[:times].to_i
-    end
-    if params[:stream].present?
-      streaming = params[:stream] == "true"
-    end
-    if streaming
-      response.headers['Content-Type'] = 'text/event-stream'
-    end
-    repeat.times {
-      @messages.each do |message|
-        ms = message.as_json.to_s
-        if streaming
-          response.stream.write ms+"\n"
-        else
-          retval << ms
-          retval << "\n"
+
+    @repeat ||= params[:times].present? ? params[:times].to_i : REPEAT
+    @streaming ||= params[:stream].present? ? params[:stream] == "true" : false
+
+    response.headers['Content-Type'] = 'text/event-stream' if @streaming
+
+    @repeat.times {
+      if @streaming
+        @messages.find_each do |message|
+          response.stream.write "data: #{message.to_json}\n\n"
         end
+      else
+        retval = @messages.to_json
       end
     }
   ensure
-    if streaming
-      response.stream.write "\nDone Streaming\n"
+    if @streaming
+      # puts "\nDone Streaming\n"
       response.stream.close
     else
-      retval << "\nDone Normally\n"
-      render :text => retval, :content_type => Mime::TEXT
+      render :json => retval
     end
   end
 

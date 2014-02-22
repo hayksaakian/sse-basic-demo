@@ -1,5 +1,9 @@
 <h1>Listing messages</h1>
 
+Reload with: 
+<button onclick="reload_with_sse()">SSE json</button>
+<button onclick="reload_with_json()">plain json</button>
+
 <table>
   <thead>
     <tr>
@@ -10,14 +14,20 @@
     </tr>
   </thead>
 
-  <tbody>
-    <% @messages.each do |message| %>
+  <tbody id="messages">
+    <% if @with_js %>
       <tr>
-        <td><%= message.content %></td>
-        <td><%= link_to 'Show', message %></td>
-        <td><%= link_to 'Edit', edit_message_path(message) %></td>
-        <td><%= link_to 'Destroy', message, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td>Loading Messages with JS</td>
       </tr>
+    <% else %>
+      <% @messages.each do |message| %>
+        <tr>
+          <td id="message_content"><%= message.content %></td>
+          <td id="message_show"><%= link_to 'Show', message %></td>
+          <td id="message_edit"><%= link_to 'Edit', edit_message_path(message) %></td>
+          <td id="message_destroy"><%= link_to 'Destroy', message, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
     <% end %>
   </tbody>
 </table>
@@ -25,3 +35,97 @@
 <br>
 
 <%= link_to 'New Message', new_message_path %>
+
+<script type="text/javascript">
+  var PLAIN_JSON_URL = "/check.json"
+  var STREAM_JSON_URL = "/check.json?stream=true"
+
+  var base_messages_path = "<%= messages_path %>";
+  var load_with_js = <%= @with_js %>;
+
+  var logger;
+
+  function reload_with_sse(){
+    reload_with("sse")
+  }
+  function reload_with_json() {
+    reload_with("json")
+  }
+
+  function reload_with(kind){
+    logger = $('#messages');
+    $('#messages').html("");
+    if(kind == "json")
+      with_normal_json();
+    else
+      with_sse();
+  }
+
+  function with_normal_json (argument){
+    template_html = $('#message_template').html();
+    $.getJSON(PLAIN_JSON_URL, function(data){
+      render_messages(data)
+    })
+  }
+  self = this;
+  var socket;
+  function with_sse (argument) {
+    template_html = $('#message_template').html();
+    self.socket = new EventSource(STREAM_JSON_URL);
+
+    self.socket.onopen = function() {
+      log('OPEN');
+    };
+
+    self.socket.onmessage = function(event) {
+      log('MESSAGE: ' + event.data);
+      var jsn = JSON.parse(event.data);
+      render_message(jsn);      
+    };
+
+    self.socket.onerror = function(event) {
+      console.log(event)
+      if (self.socket.readyState == EventSource.CLOSED) {
+      }
+      log('ERROR: ' + event.readyState);
+      self.socket.close();
+    };
+  }
+
+  var log = function(text) {
+    console.log(text)
+    // logger.html += '<tr>' + text + '</tr>';
+  };
+
+  var template_html;
+
+  function render_messages(messages){
+    messages.forEach(function(m){
+      render_message(m);
+    })
+  }
+  function render_message (message) {
+    var t_html = template_html;
+    // fix controls
+    t_html = replaceAll(t_html, "s/1", "s/"+message["id"])
+
+    var msg = $('<div/>').html(t_html).contents();
+    msg.find('#message_content').text(message["content"])
+    logger.append(msg)
+  }
+  var replaceAll = function(str, find, repl) {
+    return str.replace(new RegExp(find, 'g'), repl);
+  }
+
+</script>
+
+<script type="text/html" id="message_template">
+  <% if message = Message.first %>
+    <tr>
+      <td id="message_content"></td>
+      <td id="message_show"><%= link_to 'Show', message %></td>
+      <td id="message_edit"><%= link_to 'Edit', edit_message_path(message) %></td>
+      <td id="message_destroy"><%= link_to 'Destroy', message, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    </tr>
+  <% end %>
+</script>

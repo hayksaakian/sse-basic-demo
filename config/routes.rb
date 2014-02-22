@@ -5,6 +5,7 @@ Sse::Application.routes.draw do
   get '/s' => 'messages#check'
   get '/stream' => 'messages#check'
   get '/m' => 'messages#check'
+  get '/check' => 'messages#check'
 
   root 'messages#index'
 
